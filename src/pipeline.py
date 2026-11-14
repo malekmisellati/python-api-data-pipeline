@@ -1,3 +1,4 @@
+import requests
 from api_client import search_books
 from data_validator import validate_book
 from duplicate_checker import remove_duplicates
@@ -37,7 +38,12 @@ def process_books(books):
 def run_pipeline(query, limit=10):
 
     # Retrieve books from the API
-    books = search_books(query, limit)
+    try:
+        books = search_books(query, limit)
+
+    except requests.exceptions.RequestException as error:
+        print(f"API request failed: {error}")
+        return
 
     print(f"Retrieved {len(books)} books from the API.")
 
