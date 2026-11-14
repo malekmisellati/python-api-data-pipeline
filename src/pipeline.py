@@ -2,12 +2,7 @@ from api_client import search_books
 from data_validator import validate_book
 from duplicate_checker import remove_duplicates
 
-def run_pipeline(query, limit=10):
-
-    # Retrieve books from the API
-    books = search_books(query, limit)
-
-    print(f"Retrieved {len(books)} books from the API.")
+def process_books(books):
 
     # Store validation results
     validated_books = []
@@ -31,12 +26,29 @@ def run_pipeline(query, limit=10):
     duplicates = duplicate_results["duplicates"]
     invalid_ids = duplicate_results["invalid_books"]
 
-        # Print pipeline summary
+    return {
+        "validated_books": validated_books,
+        "invalid_books": invalid_books,
+        "unique_books": unique_books,
+        "duplicates": duplicates,
+        "invalid_ids": invalid_ids
+    }
+
+def run_pipeline(query, limit=10):
+
+    # Retrieve books from the API
+    books = search_books(query, limit)
+
+    print(f"Retrieved {len(books)} books from the API.")
+
+    # Process the retrieved books
+    results = process_books(books)
+
+    # Print pipeline summary
     print("\n--- Pipeline Summary ---")
 
-    print(f"Books retrieved: {len(books)}")
-    print(f"Books validated: {len(validated_books)}")
-    print(f"Books rejected: {len(invalid_books)}")
-    print(f"Duplicate books: {len(duplicates)}")
-    print(f"Books with invalid IDs: {len(invalid_ids)}")
-    print(f"Unique books: {len(unique_books)}")
+    print(f"Books validated: {len(results['validated_books'])}")
+    print(f"Books rejected: {len(results['invalid_books'])}")
+    print(f"Duplicate books: {len(results['duplicates'])}")
+    print(f"Books with invalid IDs: {len(results['invalid_ids'])}")
+    print(f"Unique books: {len(results['unique_books'])}")
