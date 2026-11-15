@@ -3,6 +3,7 @@ from api_client import search_books
 from data_validator import validate_book
 from duplicate_checker import remove_duplicates
 from database import create_table, insert_book
+from logger import logger
 
 def process_books(books):
 
@@ -41,6 +42,7 @@ def run_pipeline(query, limit=10):
     # Retrieve books from the API
     try:
         books = search_books(query, limit)
+        logger.info("Successfully retrieved %s books from the API.", len(books))
 
     except requests.exceptions.RequestException as error:
         print(f"API request failed: {error}")
@@ -50,12 +52,22 @@ def run_pipeline(query, limit=10):
 
     # Process the retrieved books
     results = process_books(books)
+    logger.info(
+    "Validation completed: %s valid, %s rejected.",
+    len(results["validated_books"]),
+    len(results["invalid_books"])
+)
     # Create the database table
     create_table()
 
 # Store unique books in the database
     for book in results["unique_books"]:
         insert_book(book)
+
+    logger.info(
+        "Stored %s unique books in the database.",
+        len(results["unique_books"])
+    )
 
     # Print pipeline summary
     print("\n--- Pipeline Summary ---")
