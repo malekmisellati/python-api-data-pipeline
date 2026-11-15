@@ -2,6 +2,7 @@ import requests
 from api_client import search_books
 from data_validator import validate_book
 from duplicate_checker import remove_duplicates
+from database import create_table, insert_book
 
 def process_books(books):
 
@@ -49,6 +50,12 @@ def run_pipeline(query, limit=10):
 
     # Process the retrieved books
     results = process_books(books)
+    # Create the database table
+    create_table()
+
+# Store unique books in the database
+    for book in results["unique_books"]:
+        insert_book(book)
 
     # Print pipeline summary
     print("\n--- Pipeline Summary ---")
